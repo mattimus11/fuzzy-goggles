@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Movies</title>
+</head>
+<body>
+  <h1>Welcome, <%= username %></h1>
+
+  <h2>Your Movies:</h2>
+  <ul>
+    <% if (movies.length > 0) { %>
+      <% movies.forEach(movie => { %>
+        <li><%= movie.title %> - Rating: <%= movie.rating %></li>
+      <% }) %>
+    <% } else { %>
+      <p>You haven't added any movies yet.</p>
+    <% } %>
+  </ul>
+
+  <h3>Add a New Movie</h3>
+  <form action="/add-movie" method="POST">
+    <label for="title">Movie Title:</label>
+    <input type="text" id="title" name="title" required><br><br>
+    <label for="rating">Rating (1-5):</label>
+    <input type="number" id="rating" name="rating" min="1" max="5" required><br><br>
+    <button type="submit">Add Movie</button>
+  </form>
+
+  <a href="/logout">Logout</a>
+</body>
+</html>

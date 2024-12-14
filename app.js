@@ -3,9 +3,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session');
-const argon2 = require('argon2'); // Import argon2 for hashing and verifying passwords
+const argon2 = require('argon2');
 require('dotenv').config();
-const PORT = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 
@@ -25,13 +24,14 @@ app.use(
 // MongoDB connection
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
-let usersCollection;
+let usersCollection, moviesCollection;
 
 (async () => {
   try {
     await client.connect();
-    const db = client.db('movies'); // Replace 'movies' with your database name
-    usersCollection = db.collection('users'); // Replace 'users' with your collection name
+    const db = client.db('movie_ratings'); // Database for movies and users
+    usersCollection = db.collection('users');
+    moviesCollection = db.collection('movies');
     console.log('Connected to MongoDB');
   } catch (err) {
     console.error('Failed to connect to MongoDB', err);
@@ -39,77 +39,82 @@ let usersCollection;
   }
 })();
 
-// Middleware to protect routes
+// Middleware to check if the user is logged in
 function requireLogin(req, res, next) {
   if (req.session && req.session.isLoggedIn) {
-    next(); // User is logged in, proceed to the route
+    next();
   } else {
-    res.redirect('/login'); // Redirect to login page
+    res.redirect('/login');
   }
 }
 
-// Routes
-app.get('/', requireLogin, (req, res) => {
-  res.render('index', { username: req.session.username }); // Pass the username to the view
+// Route to show the user's movie list
+app.get('/movies', requireLogin, async (req, res) => {
+  const username = req.session.username;
+  try {
+    // Fetch movies rated by the user
+    const userMovies = await moviesCollection.findOne({ username });
+
+    if (userMovies) {
+      res.render('movies', { username: username, movies: userMovies.movies });
+    } else {
+      res.render('movies', { username: username, movies: [] });
+    }
+  } catch (err) {
+    console.error('Error fetching user movies', err);
+    res.status(500).send('<h1>Internal server error</h1>');
+  }
 });
 
+// Route to add a movie with a rating
+app.post('/add-movie', requireLogin, async (req, res) => {
+  const username = req.session.username;
+  const { title, rating } = req.body;
+
+  try {
+    // Check if the movie is already added for the user
+    const userMovies = await moviesCollection.findOne({ username });
+
+    if (userMovies) {
+      // Add the new movie if it doesn't already exist in the list
+      await moviesCollection.updateOne(
+        { username },
+        { $push: { movies: { title, rating: parseInt(rating) } } }
+      );
+    } else {
+      // Create a new movie entry for the user
+      await moviesCollection.insertOne({
+        username,
+        movies: [{ title, rating: parseInt(rating) }]
+      });
+    }
+
+    res.redirect('/movies'); // Redirect to the movie list
+  } catch (err) {
+    console.error('Error adding movie', err);
+    res.status(500).send('<h1>Internal server error</h1>');
+  }
+});
+
+// Login Route
 app.get('/login', (req, res) => {
   res.render('login');
 });
 
-app.get('/register',(req,res) => {
-  res.render('register')
-})
-
-// Register route (to hash the password and store it)
-app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-
-  try {
-    // Check if the user already exists
-    const existingUser = await usersCollection.findOne({ username });
-    if (existingUser) {
-      // Send a JSON response with an error message
-      return res.json({ success: false, message: 'User already exists. Please try a different username.' });
-    }
-
-    // Hash the password using argon2
-    const hashedPassword = await argon2.hash(password);
-
-    // Save the new user with the hashed password
-    await usersCollection.insertOne({ username, password: hashedPassword });
-
-    // Send a success response
-    res.json({ success: true, message: 'Registration successful! Please log in.' });
-  } catch (err) {
-    console.error('Error registering user', err);
-    res.status(500).json({ success: false, message: 'Internal server error' });
-  }
-});
-
-
-// Login route (to verify the hashed password)
+// Login Post
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    // Find the user in MongoDB
+    // Find the user in the database
     const user = await usersCollection.findOne({ username });
 
-    if (user) {
-      // Verify the password using argon2
-      const isMatch = await argon2.verify(user.password, password);
-      
-      if (isMatch) {
-        // Save login state in the session
-        req.session.isLoggedIn = true;
-        req.session.username = username;
-        res.redirect('/');
-      } else {
-        res.send('<h1>Invalid username or password. Please try again.</h1>');
-      }
+    if (user && await argon2.verify(user.password, password)) {
+      req.session.isLoggedIn = true;
+      req.session.username = username;
+      res.redirect('/movies');
     } else {
-      res.send('<h1>User not found. Please register first.</h1>');
+      res.send('<h1>Invalid username or password.</h1>');
     }
   } catch (err) {
     console.error('Error querying database', err);
@@ -117,14 +122,45 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Logout route
+// Logout Route
 app.get('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.redirect('/login'); // Redirect to login after logout
+    res.redirect('/login');
   });
 });
 
-// Start app
+// Register Route
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+// Register Post
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const hashedPassword = await argon2.hash(password);
+
+    const userExists = await usersCollection.findOne({ username });
+
+    if (userExists) {
+      return res.json({ success: false, message: 'User already exists' });
+    }
+
+    await usersCollection.insertOne({
+      username,
+      password: hashedPassword
+    });
+
+    // Send a success message and redirect to login
+    res.json({ success: true, message: 'Registration successful! You can now log in.' });
+  } catch (err) {
+    console.error('Error registering user', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
