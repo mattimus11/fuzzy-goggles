@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session');
+const argon2 = require('argon2'); // Import argon2 for hashing and verifying passwords
 require('dotenv').config();
 const PORT = process.env.PORT || 3000;
 
@@ -14,7 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Session setup
 app.use(
   session({
-    secret: 'your_secret_key', // Replace with a secure key
+    secret: process.env.SECRET_SESSION, // Replace with a secure key
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 60000 }, // Session expires after 1 minute
@@ -52,11 +53,39 @@ app.get('/', requireLogin, (req, res) => {
   res.render('index', { username: req.session.username }); // Pass the username to the view
 });
 
-
 app.get('/login', (req, res) => {
   res.render('login');
 });
 
+app.get('/register',(req,res) => {
+  res.render('register')
+})
+
+// Register route (to hash the password and store it)
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    // Check if the user already exists
+    const existingUser = await usersCollection.findOne({ username });
+    if (existingUser) {
+      return res.send('<h1>User already exists. Please try a different username.</h1>');
+    }
+
+    // Hash the password using argon2
+    const hashedPassword = await argon2.hash(password);
+
+    // Save the new user with the hashed password
+    await usersCollection.insertOne({ username, password: hashedPassword });
+
+    res.send('<h1>Registration successful! Please log in.</h1>');
+  } catch (err) {
+    console.error('Error registering user', err);
+    res.status(500).send('<h1>Internal server error</h1>');
+  }
+});
+
+// Login route (to verify the hashed password)
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
@@ -64,13 +93,20 @@ app.post('/login', async (req, res) => {
     // Find the user in MongoDB
     const user = await usersCollection.findOne({ username });
 
-    if (user && user.password === password) {
-      // Save login state in the session
-      req.session.isLoggedIn = true;
-      req.session.username = username;
-      res.redirect('/');
+    if (user) {
+      // Verify the password using argon2
+      const isMatch = await argon2.verify(user.password, password);
+      
+      if (isMatch) {
+        // Save login state in the session
+        req.session.isLoggedIn = true;
+        req.session.username = username;
+        res.redirect('/');
+      } else {
+        res.send('<h1>Invalid username or password. Please try again.</h1>');
+      }
     } else {
-      res.send('<h1>Invalid username or password. Please try again.</h1>');
+      res.send('<h1>User not found. Please register first.</h1>');
     }
   } catch (err) {
     console.error('Error querying database', err);
