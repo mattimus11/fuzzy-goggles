@@ -5,6 +5,7 @@ const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const argon2 = require('argon2');
 require('dotenv').config();
+app.use(express.static('public'));
 
 app.set('view engine', 'ejs');
 

@@ -1,33 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Movies</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies</title>
+    <link rel="stylesheet" href="/styles.css">
+
 </head>
+
 <body>
-  <h1>Welcome, <%= username %></h1>
+    <div class="container">
+        <div class="left">
+            <h2>My Movie List</h2>
+            <ul>
+                <% if (movies && movies.length> 0) { %>
+                    <% movies.forEach(movie=> { %>
+                        <li>
+                            <strong>
+                                <%= movie.title %>
+                            </strong> - <%= movie.rating %>/10
+                        </li>
+                        <% }) %>
+                            <% } else { %>
+                                <p>No movies added yet.</p>
+                                <% } %>
+            </ul>
+        </div>
 
-  <h2>Your Movies:</h2>
-  <ul>
-    <% if (movies.length > 0) { %>
-      <% movies.forEach(movie => { %>
-        <li><%= movie.title %> - Rating: <%= movie.rating %></li>
-      <% }) %>
-    <% } else { %>
-      <p>You haven't added any movies yet.</p>
-    <% } %>
-  </ul>
+        <div class="right">
+            <h2>Add Movie</h2>
+            <form action="/add-movie" method="POST">
+                <label for="title">Movie Title:</label>
+                <input type="text" id="title" name="title" required><br><br>
 
-  <h3>Add a New Movie</h3>
-  <form action="/add-movie" method="POST">
-    <label for="title">Movie Title:</label>
-    <input type="text" id="title" name="title" required><br><br>
-    <label for="rating">Rating (1-5):</label>
-    <input type="number" id="rating" name="rating" min="1" max="5" required><br><br>
-    <button type="submit">Add Movie</button>
-  </form>
+                <label for="rating">Rating (1-10):</label>
+                <input type="number" id="rating" name="rating" min="1" max="10" required><br><br>
 
-  <a href="/logout">Logout</a>
+                <button type="submit">Add Movie</button>
+            </form>
+            <!-- Inside movies.ejs -->
+            <form action="/logout" method="get">
+                <button type="submit">Logout</button>
+            </form>
+
+        </div>
+    </div>
 </body>
+
 </html>
