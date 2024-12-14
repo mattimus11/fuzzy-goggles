@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session');
 require('dotenv').config();
+const PORT = process.env.PORT || 3000;
 
 app.set('view engine', 'ejs');
 
@@ -48,8 +49,9 @@ function requireLogin(req, res, next) {
 
 // Routes
 app.get('/', requireLogin, (req, res) => {
-  res.render('index', { username: req.session.username }); // Pass username to the view
+  res.render('index', { username: req.session.username }); // Pass the username to the view
 });
+
 
 app.get('/login', (req, res) => {
   res.render('login');
@@ -84,7 +86,6 @@ app.get('/logout', (req, res) => {
 });
 
 // Start app
-const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
