@@ -69,7 +69,8 @@ app.post('/register', async (req, res) => {
     // Check if the user already exists
     const existingUser = await usersCollection.findOne({ username });
     if (existingUser) {
-      return res.send('<h1>User already exists. Please try a different username.</h1>');
+      // Send a JSON response with an error message
+      return res.json({ success: false, message: 'User already exists. Please try a different username.' });
     }
 
     // Hash the password using argon2
@@ -78,12 +79,14 @@ app.post('/register', async (req, res) => {
     // Save the new user with the hashed password
     await usersCollection.insertOne({ username, password: hashedPassword });
 
-    res.send('<h1>Registration successful! Please log in.</h1>');
+    // Send a success response
+    res.json({ success: true, message: 'Registration successful! Please log in.' });
   } catch (err) {
     console.error('Error registering user', err);
-    res.status(500).send('<h1>Internal server error</h1>');
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
+
 
 // Login route (to verify the hashed password)
 app.post('/login', async (req, res) => {
