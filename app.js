@@ -52,18 +52,18 @@ function requireLogin(req, res, next) {
 // Route to show the user's movie list
 app.get('/movies', requireLogin, async (req, res) => {
   const username = req.session.username;
-  try {
-    // Fetch movies rated by the user
-    const userMovies = await moviesCollection.findOne({ username });
+  
+  // Assuming you're passing the movies from the database
+  const userMovies = await moviesCollection.findOne({ username });
+  
+  // Check if the request is from a mobile device using the user-agent header
+  const isMobile = /Mobile|Android|webOS|iPhone|iPad|iPod/i.test(req.headers['user-agent']);
 
-    if (userMovies) {
-      res.render('movies', { username: username, movies: userMovies.movies });
-    } else {
-      res.render('movies', { username: username, movies: [] });
-    }
-  } catch (err) {
-    console.error('Error fetching user movies', err);
-    res.status(500).send('<h1>Internal server error</h1>');
+  // If mobile, render a mobile-specific view, otherwise render the default view
+  if (isMobile) {
+    res.render('movies-mobile', { username, movies: userMovies ? userMovies.movies : [] });
+  } else {
+    res.render('movies', { username, movies: userMovies ? userMovies.movies : [] });
   }
 });
 

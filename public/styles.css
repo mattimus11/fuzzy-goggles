@@ -10,6 +10,7 @@ body {
     display: flex;
     justify-content: space-between;
     margin: 20px;
+    flex-wrap: wrap; /* Allow wrapping for smaller screens */
 }
 
 .left {
@@ -61,4 +62,28 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+/* Mobile-Friendly Adjustments */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* Stack the left and right columns vertically on smaller screens */
+        margin: 10px; /* Adjust margin for mobile */
+    }
+
+    .left {
+        margin-right: 0; /* Remove the right margin */
+        max-height: none; /* Allow full height on mobile */
+    }
+
+    .right {
+        width: 100%; /* Make the right section take full width on mobile */
+        position: relative; /* Remove sticky positioning for mobile */
+        box-shadow: none; /* Remove box-shadow for mobile */
+        margin-top: 20px; /* Add some space between the sections */
+    }
+
+    button {
+        padding: 12px; /* Make buttons larger for easier clicking on mobile */
+    }
 }

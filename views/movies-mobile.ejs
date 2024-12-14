@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movies</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Menu Button for Mobile View -->
+  <div class="menu">
+    <button class="menu-btn">Menu</button>
+    <div class="menu-content">
+      <form action="/logout" method="get">
+        <button type="submit">Logout</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Movie Content -->
+  <div class="container">
+    <h2>Your Movies</h2>
+    <ul>
+      <% if (movies.length > 0) { %>
+        <% movies.forEach(movie => { %>
+          <li><%= movie.title %> - Rating: <%= movie.rating %></li>
+        <% }); %>
+      <% } else { %>
+        <li>No movies added yet.</li>
+      <% } %>
+    </ul>
+    
+    <form action="/add-movie" method="POST">
+      <label for="title">Movie Title:</label>
+      <input type="text" id="title" name="title" required><br><br>
+      <label for="rating">Rating:</label>
+      <input type="number" id="rating" name="rating" required min="1" max="5"><br><br>
+      <button type="submit">Add Movie</button>
+    </form>
+  </div>
+
+  <script>
+    // Toggle the visibility of the menu on button click (for mobile view)
+    document.querySelector('.menu-btn').addEventListener('click', function() {
+      const menuContent = document.querySelector('.menu-content');
+      menuContent.style.display = menuContent.style.display === 'block' ? 'none' : 'block';
+    });
+  </script>
+</body>
+</html>
