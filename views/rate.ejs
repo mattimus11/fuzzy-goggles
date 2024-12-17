@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rate a Movie</title>
+  <link rel="stylesheet" href="/rate.css">
+</head>
+<body>
+  <h2>Rate a Movie</h2>
+  <form action="/rate" method="POST">
+    <label for="title">Movie Title:</label>
+    <input type="text" id="title" name="title" required><br><br>
+    <label for="rating">Rating:</label>
+    <input type="number" id="rating" name="rating" required min="1" max="5"><br><br>
+    <button type="submit">Submit Rating</button>
+  </form>
+
+  <nav class="menu">
+    <a href="/logout">Logout</a>
+    <a href="/movies">Movie List</a>
+  </nav>
+  <a href="/movies"><button>Back to Movie List</button></a>
+</body>
+</html>
