@@ -46,12 +46,17 @@ app.get(["/", "/index"], async (req, res) => {
 })
 
 app.get("/about", async (req, res) => {
-  const collection = client.db('movies').collection('ratings');
-  const movies = await collection.find().sort({ rating: -1 }).toArray();
   res.render("about", {
     title: "",
-    movies: movies
   });
+})
+
+app.get("/ratings", async(req,res) => {
+  const collection = client.db('movies').collection('ratings');
+  const movies = await collection.find.sort
+  res.render("ratings", {
+    title:""
+  })
 })
 
 
