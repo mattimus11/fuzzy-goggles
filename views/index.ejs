@@ -40,17 +40,17 @@
       <a href="about">About</a>
     </div>
   </nav>
-  <!doctype html>
-  <html lang="en">
 
-  <body>
     <h1>List of Names and Numbers</h1>
     <ul class="custom-list">
-      <li><span class="name">Alice</span><span class="number">123</span></li>
+      <% for(var i = 0; i < movies.length; i++) { %>
+        <li><span class="name"><%= movies[i].movie %></span><span class="number"><%= movies[i].rating %></span></li>
+      <% } %>
+      <!-- <li><span class="name"><%- console.log('test') %></span><span class="number">123</span></li>
       <li><span class="name">Bob</span><span class="number">456</span></li>
       <li><span class="name">Charlie</span><span class="number">789</span></li>
       <li><span class="name">David</span><span class="number">101</span></li>
-      <li><span class="name">Eva</span><span class="number">202</span></li>
+      <li><span class="name">Eva</span><span class="number">202</span></li> -->
     </ul>
   </body>
 

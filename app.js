@@ -2,7 +2,7 @@ const express = require("express");
 const PORT = 3500;
 const app = express();
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, Collection } = require('mongodb');
 const uri = `mongodb+srv://Matthew:${process.env.MONGO_PWD}@cluster0.vza6k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
@@ -27,24 +27,28 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
   }
 }
 run().catch(console.dir);
 
 
 
-app.get("/", (req,res) =>{
-    res.render("index");
+app.get(["/","/index"], async (req,res) =>{
+  const collection = client.db('movies').collection('ratings');
+  const movies = await collection.find().sort({ rating: -1}).toArray();
+  res.render("index", {movies:movies});
 })
 
-app.get("/about", (req,res) =>{
+app.get("/about", async (req,res) =>{
     res.render("about");
 })
 
-app.get("/index", (req,res) =>{
-    res.render("index");
-})
+// app.get("/index", async (req,res) =>{
+//   const collection = client.db('movies').collection('ratings');
+//   const movies = await collection.find().sort()
+//   res.redirect("index", {movies:movies});
+// })
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
