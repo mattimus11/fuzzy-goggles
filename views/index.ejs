@@ -1,69 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-   <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-      <meta name="description" content="" />
-      <meta name="author" content="" />
-      <title>Simple Sidebar - Start Bootstrap Template</title>
-      <!-- Favicon-->
-      <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-      <!-- Core theme CSS (includes Bootstrap)-->
-      <link href="styles/sidebar.css" rel="stylesheet" />
-   </head>
-   <body>
-      <div class="d-flex" id="wrapper">
-         <!-- Sidebar-->
-         <div class="border-end bg-white" id="sidebar-wrapper">
-            <div class="sidebar-heading border-bottom bg-light">Start Bootstrap</div>
-            <div class="list-group list-group-flush">
-               <a class="list-group-item list-group-item-action list-group-item-light p-3" href="/">Dashboard</a>
-               <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Shortcuts</a>
-               <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Overview</a>
-               <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Events</a>
-               <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Profile</a>
-               <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Status</a>
-            </div>
-         </div>
-         <!-- Page content wrapper-->
-         <div id="page-content-wrapper">
-            <!-- Top navigation-->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-               <div class="container-fluid">
-                  <button class="btn btn-primary" id="sidebarToggle">
-                     <svg xmlns="http://www.w3.org/2000/svg" width="16"
-                        height="16" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd"
-                           d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                     </svg>
-                  </button>
-                  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                  </div>
-               </div>
-            </nav>
-            <!-- Page content-->
-            <div class="container-fluid">
-              <h1 class="mt-4">Movie Rankings</h1>
-              <ol class="custom-list">
-                 <% for(var i = 0; i < movies.length; i++) { %>
-                    <li class="movie-item">
-                       <div class="movie-info">
-                         <strong><%= movies[i].movie %></strong>
-                       </div>
-                       <div class="rating">
-                          <%= movies[i].rating + '/10' %>
-                       </div>
-                    </li>
-                 <% } %>
-              </ol>
-           </div>
-           
-         </div>
-      </div>
-      </div>
-      <!-- Bootstrap core JS-->
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-      <!-- Core theme JS-->
-      <script src="scripts/sidebar.js"></script>
-   </body>
-</html>
+<!-- index.ejs -->
+<div class="container-fluid">
+  <h1 class="mt-4">Movies Ranked</h1>
+  <ol class="custom-list">
+    <% for (var i = 0; i < movies.length; i++) { %>
+      <li>
+        <span class="name"><strong><%= movies[i].movie + ': ' %></strong></span>
+        <span class="number"><%= movies[i].rating + '/10' %></span>
+      </li>
+    <% } %>
+  </ol>
+</div>

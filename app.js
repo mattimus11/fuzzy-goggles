@@ -6,6 +6,9 @@ const { MongoClient, ServerApiVersion, Collection } = require('mongodb');
 const uri = `mongodb+srv://Matthew:${process.env.MONGO_PWD}@cluster0.vza6k.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 app.use(express.static(__dirname + "/public"));
 app.set('view engine', 'ejs');
+const expressLayouts = require('express-ejs-layouts');
+const { title } = require("process");
+app.use(expressLayouts);
 
 
 
@@ -33,17 +36,25 @@ run().catch(console.dir);
 
 
 
-app.get(["/","/index"], async (req,res) =>{
+app.get(["/", "/index"], async (req, res) => {
   const collection = client.db('movies').collection('ratings');
-  const movies = await collection.find().sort({ rating: -1}).toArray();
-  res.render("index", {movies:movies});
+  const movies = await collection.find().sort({ rating: -1 }).toArray();
+  res.render("index", { 
+    movies: movies,
+    title:'' 
+  });
 })
 
-app.get("/about", async (req,res) =>{
-    res.render("about");
+app.get("/about", async (req, res) => {
+  const collection = client.db('movies').collection('ratings');
+  const movies = await collection.find().sort({ rating: -1 }).toArray();
+  res.render("about", {
+    title: "",
+    movies: movies
+  });
 })
 
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-  });
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
