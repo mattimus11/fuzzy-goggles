@@ -43,12 +43,6 @@ app.get("/about", async (req,res) =>{
     res.render("about");
 })
 
-// app.get("/index", async (req,res) =>{
-//   const collection = client.db('movies').collection('ratings');
-//   const movies = await collection.find().sort()
-//   res.redirect("index", {movies:movies});
-// })
-
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
